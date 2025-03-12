@@ -9,13 +9,13 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
-class MainActivity : AppCompatActivity() {
-    lateinit var mLayout: LinearLayout
-    lateinit var mTitle: TextView
-    lateinit var mProgressBar: ProgressBar
-    var mBoxes: MutableList<CheckBox> = mutableListOf()
-    var mButtons: MutableList<Button> = mutableListOf()
-    var testsPassed = 0
+class Lab01Activity : AppCompatActivity() {
+    private lateinit var mLayout: LinearLayout
+    private lateinit var mTitle: TextView
+    private lateinit var mProgressBar: ProgressBar
+    private val mBoxes: MutableList<CheckBox> = mutableListOf()
+    private val mButtons: MutableList<Button> = mutableListOf()
+    private var testsPassed = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,31 +23,34 @@ class MainActivity : AppCompatActivity() {
         mLayout = findViewById(R.id.main)
 
         // Tytuł
-        mTitle = TextView(this)
-        mTitle.text = "Laboratorium 1"
-        mTitle.textSize = 24f
-        val titleParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        )
-        titleParams.setMargins(20, 20, 20, 20)
-        mTitle.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
-        mTitle.layoutParams = titleParams
+        mTitle = TextView(this).apply {
+            text = "Laboratorium 1"
+            textSize = 24f
+            textAlignment = TextView.TEXT_ALIGNMENT_CENTER
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(20, 20, 20, 20)
+            }
+        }
         mLayout.addView(mTitle)
 
         // Utwórz wiersz dla każdego testu: checkbox + przycisk
         for (i in 1..6) {
-            val horizontalLayout = LinearLayout(this)
-            horizontalLayout.orientation = LinearLayout.HORIZONTAL
-
-            val checkBox = CheckBox(this)
-            checkBox.text = "Zadanie $i"
-            checkBox.isEnabled = false
+            val horizontalLayout = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+            }
+            val checkBox = CheckBox(this).apply {
+                text = "Zadanie $i"
+                isEnabled = false
+            }
             horizontalLayout.addView(checkBox)
             mBoxes.add(checkBox)
 
-            val button = Button(this)
-            button.text = "Uruchom test $i"
+            val button = Button(this).apply {
+                text = "Uruchom test $i"
+            }
             horizontalLayout.addView(button)
             mButtons.add(button)
 
@@ -55,18 +58,19 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Pasek postępu umieszczony na dole
-        mProgressBar = ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal)
-        val progressParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        )
-        progressParams.setMargins(20, 20, 20, 20)
-        mProgressBar.layoutParams = progressParams
-        mProgressBar.max = 6
-        mProgressBar.progress = 0
+        mProgressBar = ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal).apply {
+            max = 6
+            progress = 0
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(20, 20, 20, 20)
+            }
+        }
         mLayout.addView(mProgressBar)
 
-        // Ustawienie obsługi kliknięć dla przycisków testów
+        // Obsługa kliknięć dla przycisków testów
         mButtons[0].setOnClickListener {
             val result = (task11(4, 6) in 0.666665..0.666667) &&
                     (task11(7, -6) in -1.1666667..-1.1666665)
@@ -175,32 +179,23 @@ class MainActivity : AppCompatActivity() {
 
     // Funkcje testowe
 
-    // Wykonaj dzielenie niecałkowite parametru a przez b
-    private fun task11(a: Int, b: Int): Double {
-        return a.toDouble() / b.toDouble()
-    }
+    private fun task11(a: Int, b: Int): Double =
+        a.toDouble() / b.toDouble()
 
-    // Zwraca łańcuch wg schematu: <a> + <b> = <a+b>
-    private fun task12(a: UInt, b: UInt): String {
-        return "$a + $b = ${a + b}"
-    }
+    private fun task12(a: UInt, b: UInt): String =
+        "$a + $b = ${a + b}"
 
-    // Zwraca true, jeśli a jest nieujemne i mniejsze od b
-    fun task13(a: Double, b: Float): Boolean {
-        return a >= 0 && a < b.toDouble()
-    }
+    fun task13(a: Double, b: Float): Boolean =
+        a >= 0 && a < b.toDouble()
 
-    // Zwraca łańcuch dla liczb całkowitych, przy czym jeśli b jest ujemne, zamiast '+' używa '-'
-    fun task14(a: Int, b: Int): String {
-        return if (b < 0)
+    fun task14(a: Int, b: Int): String =
+        if (b < 0)
             "$a - ${Math.abs(b)} = ${a + b}"
         else
             "$a + $b = ${a + b}"
-    }
 
-    // Zwraca ocenę jako liczbę całkowitą na podstawie opisu słownego
-    fun task15(degree: String): Int {
-        return when(degree.lowercase()) {
+    fun task15(degree: String): Int =
+        when (degree.lowercase()) {
             "bardzo dobry" -> 5
             "dobry" -> 4
             "dostateczny" -> 3
@@ -208,12 +203,9 @@ class MainActivity : AppCompatActivity() {
             "niedostateczny" -> 1
             else -> -1
         }
-    }
 
-    // Zwraca liczbę egzemplarzy, które można zbudować na podstawie magazynu (store) i zestawu elementów (asset)
-    fun task16(store: Map<String, UInt>, asset: Map<String, UInt>): UInt {
-        return asset.map { (element, requiredQuantity) ->
+    fun task16(store: Map<String, UInt>, asset: Map<String, UInt>): UInt =
+        asset.map { (element, requiredQuantity) ->
             store.getOrElse(element) { 0u } / requiredQuantity
         }.minOrNull() ?: 0u
-    }
 }
