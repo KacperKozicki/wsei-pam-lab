@@ -1,12 +1,16 @@
 package pl.wsei.pam.lab03
 
-import pl.wsei.pam.lab03.Tile
 import android.view.Gravity
 import android.view.View
 import android.widget.GridLayout
 import android.widget.ImageButton
 import pl.wsei.pam.lab01.R
 import java.util.*
+import android.animation.Animator
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 
 class MemoryBoardView(
     private val gridLayout: GridLayout,
@@ -61,6 +65,70 @@ class MemoryBoardView(
     private val matchedPair: Stack<Tile> = Stack()
     private val logic: MemoryGameLogic = MemoryGameLogic(cols * rows / 2)
 
+    //animacje przycisków trafionych kart
+    private fun animatePairedButton(button: ImageButton, action: Runnable) {
+        val set = AnimatorSet()
+        val random = Random()
+        button.pivotX = random.nextFloat() * 200f
+        button.pivotY = random.nextFloat() * 200f
+
+        val rotation = ObjectAnimator.ofFloat(button, "rotation", 1080f)
+        val scallingX = ObjectAnimator.ofFloat(button, "scaleX", 1f, 4f)
+        val scallingY = ObjectAnimator.ofFloat(button, "scaleY", 1f, 4f)
+        val fade = ObjectAnimator.ofFloat(button, "alpha", 1f, 0f)
+        set.startDelay = 500
+        set.duration = 2000
+        set.interpolator = DecelerateInterpolator()
+        set.playTogether(rotation, scallingX, scallingY, fade)
+        set.addListener(object: Animator.AnimatorListener {
+            override fun onAnimationStart(animator: Animator) {}
+
+            override fun onAnimationEnd(animator: Animator) {
+                button.scaleX = 1f
+                button.scaleY = 1f
+                button.alpha = 0.0f
+                action.run()
+            }
+
+            override fun onAnimationCancel(animator: Animator) {}
+            override fun onAnimationRepeat(animator: Animator) {}
+        })
+        set.start()
+    }
+
+    private fun animateNonMatchedButton(button: ImageButton, action: Runnable) {
+        val set = AnimatorSet()
+
+        // Create a shaking animation
+        val shakeRight = ObjectAnimator.ofFloat(button, "rotation", 0f, 10f)
+        val shakeLeft = ObjectAnimator.ofFloat(button, "rotation", 10f, -10f)
+        val shakeCenter = ObjectAnimator.ofFloat(button, "rotation", -10f, 0f)
+
+        // Configure the shake sequence
+        val shakeSequence = AnimatorSet().apply {
+            playSequentially(shakeRight, shakeLeft, shakeCenter)
+            duration = 300
+        }
+
+        // Repeat the shake a few times
+        val fullShake = AnimatorSet().apply {
+            playSequentially(shakeSequence, shakeSequence.clone(), shakeSequence.clone())
+            interpolator = AccelerateDecelerateInterpolator()
+        }
+
+        fullShake.addListener(object: Animator.AnimatorListener {
+            override fun onAnimationStart(animator: Animator) {}
+            override fun onAnimationEnd(animator: Animator) {
+                button.rotation = 0f  // Reset rotation
+                action.run()
+            }
+            override fun onAnimationCancel(animator: Animator) {}
+            override fun onAnimationRepeat(animator: Animator) {}
+        })
+
+        fullShake.start()
+    }
+
     private fun onClickTile(v: View) {
         val tile = tiles[v.tag]
         if (tile != null && !tile.revealed) {
@@ -76,7 +144,48 @@ class MemoryBoardView(
     }
 
     fun setOnGameChangeListener(listener: (event: MemoryGameEvent) -> Unit) {
-        onGameChangeStateListener = listener
+        onGameChangeStateListener = { event ->
+            // Block UI during animations
+            gridLayout.isEnabled = false
+
+            when (event.state) {
+                GameStates.Match, GameStates.Finished -> {
+                    // For matched pairs
+                    event.tiles.forEach { tile ->
+                        animatePairedButton(tile.button) {
+                            tile.revealed = true
+                            tile.removeOnClickListener()
+                            gridLayout.isEnabled = true
+                        }
+                    }
+                }
+                GameStates.NoMatch -> {
+                    // For non-matching pairs
+                    val nonMatchingTiles = event.tiles.toList()
+
+                    // Animate the tiles
+                    var animationsCompleted = 0
+                    nonMatchingTiles.forEach { tile ->
+                        animateNonMatchedButton(tile.button) {
+                            animationsCompleted++
+                            if (animationsCompleted == nonMatchingTiles.size) {
+                                // Reset cards after animation completes
+                                nonMatchingTiles.forEach { it.revealed = false }
+                                gridLayout.isEnabled = true
+                            }
+                        }
+                    }
+                }
+                GameStates.Matching -> {
+                    // Just reveal the first card, no animation needed
+                    event.tiles.firstOrNull()?.revealed = true
+                    gridLayout.isEnabled = true
+                }
+            }
+
+            // Call the original listener
+            listener(event)
+        }
     }
 
     private fun addTile(button: ImageButton, resourceImage: Int) {
