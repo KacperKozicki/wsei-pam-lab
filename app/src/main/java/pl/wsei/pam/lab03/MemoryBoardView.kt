@@ -128,7 +128,13 @@ class MemoryBoardView(
 
         fullShake.start()
     }
+    fun getMatchCount(): Int {
+        return logic.getMatches()
+    }
 
+    fun setMatchCount(count: Int) {
+        logic.setMatches(count)
+    }
     private fun onClickTile(v: View) {
         val tile = tiles[v.tag]
         if (tile != null && !tile.revealed) {

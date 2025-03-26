@@ -2,4 +2,5 @@
     <string name="app_name">Lab01</string>
     <string name="lab02_label">Lab2</string>
     <string name="lab01_label">Lab1</string>
+    <string name="board_activity_menu_sound">Sound</string>
 </resources>

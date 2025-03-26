@@ -20,4 +20,13 @@ class MemoryGameLogic(private val maxMatches: Int) {
             false -> GameStates.NoMatch
         }
     }
+
+    // Add to MemoryGameLogic class
+    fun getMatches(): Int {
+        return matches
+    }
+
+    fun setMatches(count: Int) {
+        matches = count
+    }
 }
