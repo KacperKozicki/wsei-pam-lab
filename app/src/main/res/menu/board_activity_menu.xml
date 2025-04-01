@@ -7,4 +7,9 @@
         android:iconTint="#1B1A1A"
         android:title="@string/board_activity_menu_sound"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/board_activity_reset"
+        android:icon="@android:drawable/ic_menu_revert"
+        android:title="@string/menu_reset_title"
+        app:showAsAction="ifRoom|withText" />
 </menu>
