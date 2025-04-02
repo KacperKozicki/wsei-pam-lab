@@ -4,13 +4,14 @@
     <string name="lab01_label">Lab1</string>
     <string name="board_activity_menu_sound">Sound</string>
 
-<string name="sound_on_toast">Sound turned ON</string>
-<string name="sound_off_toast">Sound turned OFF</string>
-<string name="game_reset_toast">Game Reset</string>
-<string name="menu_sound_title">Toggle Sound</string>
-<string name="menu_reset_title">Reset Game</string>
-<string name="completion_dialog_title">Congratulations!</string>
-<string name="completion_dialog_message">You\'ve matched all the pairs!</string>
-<string name="completion_dialog_play_again">Play Again</string>
-<string name="completion_dialog_close">Close</string>
+    <string name="sound_on_toast">Sound turned ON</string>
+    <string name="sound_off_toast">Sound turned OFF</string>
+    <string name="game_reset_toast">Game Reset</string>
+    <string name="menu_sound_title">Toggle Sound</string>
+    <string name="menu_reset_title">Reset Game</string>
+    <string name="completion_dialog_title">Congratulations!</string>
+    <string name="completion_dialog_message">You\'ve matched all the pairs!</string>
+    <string name="completion_dialog_play_again">Play Again</string>
+    <string name="completion_dialog_close">Close</string>
+    <string name="title_activity_main">MainActivity</string>
 </resources>
