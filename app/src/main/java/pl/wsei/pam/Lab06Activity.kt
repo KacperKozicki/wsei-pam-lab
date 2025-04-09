@@ -17,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -68,10 +69,10 @@ data class TodoTask(
 
 fun todoTasks(): List<TodoTask> {
     return listOf(
-        TodoTask("Programming", LocalDate.of(2024, 4, 18), false, Priority.Low),
-        TodoTask("Teaching", LocalDate.of(2024, 5, 12), false, Priority.High),
-        TodoTask("Learning", LocalDate.of(2024, 6, 28), true, Priority.Low),
-        TodoTask("Cooking", LocalDate.of(2024, 8, 18), false, Priority.Medium),
+        TodoTask("Programowanie", LocalDate.of(2024, 4, 18), false, Priority.Low),
+        TodoTask("Uczenie", LocalDate.of(2024, 5, 12), false, Priority.High),
+        TodoTask("Szkolenie", LocalDate.of(2024, 6, 28), true, Priority.Low),
+        TodoTask("Gotowanie", LocalDate.of(2024, 8, 18), false, Priority.Medium),
     )
 }
 
@@ -207,11 +208,15 @@ fun ListItem(item: TodoTask, modifier: Modifier = Modifier) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScreen(navController: NavController) {
+    // Get repository from Application
+    val context = LocalContext.current
+    val todoRepository = (context.applicationContext as TodoApplication).container.todoRepository
+
     Scaffold(
         topBar = {
             AppTopBar(
                 navController = navController,
-                title = "Todo List",
+                title = "Lista zadań",
                 showBackIcon = false,
                 route = "form"
             )
@@ -225,25 +230,19 @@ fun ListScreen(navController: NavController) {
             ) {
                 Icon(
                     imageVector = Icons.Filled.Add,
-                    contentDescription = "Add task",
+                    contentDescription = "Dodawanie zadania",
                     modifier = Modifier.scale(1.5f)
                 )
             }
         }
     ) { paddingValues ->
-        Box(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 8.dp)
-            ) {
-                items(items = todoTasks()) { task ->
-                    ListItem(item = task)
-                }
+            items(items = todoRepository.getTasks()) { task ->
+                ListItem(item = task)
             }
         }
     }
@@ -252,6 +251,9 @@ fun ListScreen(navController: NavController) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FormScreen(navController: NavController) {
+    val context = LocalContext.current
+    val todoRepository = (context.applicationContext as TodoApplication).container.todoRepository
+
     var taskTitle by remember { mutableStateOf("") }
     var selectedPriority by remember { mutableStateOf(Priority.Medium) }
     var isTaskDone by remember { mutableStateOf(false) }
@@ -312,13 +314,13 @@ fun FormScreen(navController: NavController) {
             OutlinedTextField(
                 value = taskTitle,
                 onValueChange = { taskTitle = it },
-                label = { Text("Task Title") },
+                label = { Text("Tytuł zadania") },
                 modifier = Modifier.fillMaxWidth()
             )
 
             // Priority selection
             Text(
-                text = "Priority:",
+                text = "Priorytet:",
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(top = 8.dp)
             )
@@ -355,14 +357,14 @@ fun FormScreen(navController: NavController) {
             OutlinedTextField(
                 value = selectedDate.format(dateFormatter),
                 onValueChange = { },
-                label = { Text("Deadline Date") },
+                label = { Text("Należy wykonać do") },
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = true,
                 trailingIcon = {
                     IconButton(onClick = { showDatePicker = true }) {
                         Icon(
                             imageVector = Icons.Default.DateRange,
-                            contentDescription = "Select date"
+                            contentDescription = "Wybierz datę"
                         )
                     }
                 }
@@ -378,7 +380,7 @@ fun FormScreen(navController: NavController) {
                     onCheckedChange = { isTaskDone = it }
                 )
                 Text(
-                    text = "Mark as completed",
+                    text = "Oznacz jako ukończone",
                     modifier = Modifier.padding(start = 8.dp)
                 )
             }
@@ -386,14 +388,21 @@ fun FormScreen(navController: NavController) {
             // Submit button
             Button(
                 onClick = {
-                    // Save the task and navigate back to list
+                    // Create and save the new task
+                    val newTask = TodoTask(
+                        title = taskTitle,
+                        deadline = selectedDate,
+                        isDone = isTaskDone,
+                        priority = selectedPriority
+                    )
+                    todoRepository.addTask(newTask)
                     navController.navigate("list")
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp)
             ) {
-                Text("Save Task")
+                Text("Zapisz zadanie")
             }
         }
     }
