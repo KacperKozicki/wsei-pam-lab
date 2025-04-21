@@ -3,6 +3,8 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
     id("kotlin-kapt")
+    id("com.google.devtools.ksp") version "1.9.20-1.0.14"
+
 }
 
 android {
@@ -65,7 +67,7 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation("androidx.compose.material:material-icons-extended:1.5.4") // for AutoMirrored icons
-
+    implementation("com.google.accompanist:accompanist-permissions:0.37.2")
     val roomVersion = "2.6.1" // Use the latest version
 
     implementation("androidx.room:room-runtime:$roomVersion")

@@ -7,6 +7,8 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+import pl.wsei.pam.Priority
+import java.time.LocalDate
 
 @Dao
 interface TodoTaskDao {
@@ -24,4 +26,7 @@ interface TodoTaskDao {
 
     @Query("SELECT * FROM tasks WHERE id = :id")
     fun find(id: Int): Flow<TodoTaskEntity>
+
+    @Query("UPDATE tasks SET title = :title, deadline = :deadline, isDone = :isDone, priority = :priority WHERE id = :id")
+    suspend fun updateTask(id: Int, title: String, deadline: LocalDate, isDone: Boolean, priority: Priority)
 }

@@ -18,6 +18,7 @@ data class TodoTaskEntity(
 ) {
     fun toModel(): TodoTask {
         return TodoTask(
+            id = id,
             title = title,
             deadline = deadline,
             isDone = isDone,
@@ -28,7 +29,7 @@ data class TodoTaskEntity(
     companion object {
         fun fromModel(model: TodoTask): TodoTaskEntity {
             return TodoTaskEntity(
-                id = 0,  // Auto-generated
+                id = model.id,  // Use existing ID, not 0
                 title = model.title,
                 priority = model.priority,
                 isDone = model.isDone,

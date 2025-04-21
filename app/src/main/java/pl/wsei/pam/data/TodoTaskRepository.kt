@@ -33,6 +33,7 @@ class DatabaseTodoTaskRepository(private val dao: TodoTaskDao) : TodoTaskReposit
     }
 
     override suspend fun updateItem(item: TodoTask) {
-        dao.update(TodoTaskEntity.fromModel(item))
+        val entity = TodoTaskEntity.fromModel(item)
+        dao.updateTask(entity.id, entity.title, entity.deadline, entity.isDone, entity.priority)
     }
 }
